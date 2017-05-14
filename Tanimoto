@@ -1,4 +1,3 @@
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -9,13 +8,13 @@ import java.io.IOException;
  *
  * @author Aspire
  */
-public class Tanimoto {
+public class Tanimoto implements Runnable{
     
     public String a;// = "Cccc@@";
     public String b;// = "CccC@@";
     
-    public Tanimoto(String str){
-        this.a = str;
+    public Tanimoto(){
+        
     }
     
     public static char [] toCharArray(String str){
@@ -45,7 +44,7 @@ public class Tanimoto {
     }
     
     
-    public static char [][] matrizCaracteres(char [] arreglo1, char [] arreglo2){
+   public static char [][] matrizCaracteres(char [] arreglo1, char [] arreglo2){
         int cont=0;
         char [][] matriz = new char[2][arreglo1.length];
         
@@ -63,7 +62,7 @@ public class Tanimoto {
         return matriz;
     }
     
-    public static void imprimirMatriz(char[][] matriz, int n){
+   public static void imprimirMatriz(char[][] matriz, int n){
         
         for(int i=0;i<2;i++){
             for(int j=0;j<n;j++){
@@ -75,37 +74,26 @@ public class Tanimoto {
     
     public static void main(String [] args) throws IOException{
         
-        int contArroba=0;
-        //String cadena = "Cccc@@";
-        String cadenaCompara = "Ccc@@Ff";
-        char [] arregloCaracteresCompara = new char[cadenaCompara.length()];
-        arregloCaracteresCompara = toCharArray(cadenaCompara);
         
-        char [][] matrizCaracteres = new char [2][cadenaCompara.length()];
+        long startTime = System.nanoTime();
         
+        //ct.imprimirMatriz(matrizCaracteres, arregloCaracteresSimplif.length);
+        Runnable proceso1=new Tanimoto();
         
-        //1. leer cadena/archivo segun corresponda
-        String cadena = "Cccc@@";
-        //2. convertir en arreglo caracteres
-        char [] arregloCaracteres = new char[cadena.length()];
-        arregloCaracteres = toCharArray(cadena);
-        //3. contar '@'
-        contArroba = contarArroba(arregloCaracteres);
-        //4. filtrar '@'
-        //se elimina '@' si lo hubiere
-        char [] arregloCaracteresSimplif = new char[cadena.length()];
-        arregloCaracteresSimplif=filtrar(arregloCaracteres);
-        //5. se compara cadena con cadenaCompara
-        //se obtiene una matriz con los caracteres y sus repeticiones
-        matrizCaracteres = matrizCaracteres(arregloCaracteresSimplif, arregloCaracteresCompara);
-        imprimirMatriz(matrizCaracteres,arregloCaracteresSimplif.length);
-//        
+        new Thread(proceso1).start();
+
+
 //        System.out.println(arregloCaracteresSimplif);
 //        System.out.println(arregloCaracteresCompara);
 //        System.out.println(arregloCaracteresSimplif.length);
         //System.out.println(arregloCaracteresSimplif);
         
       //  leerArchivo();
+      
+       long endTime = System.nanoTime();
+
+    System.out.println("Duración: " + (endTime-startTime)/1e6 + " ms");      
+      
     }
     
     public static void leerArchivo() throws FileNotFoundException, IOException{
@@ -127,6 +115,39 @@ public class Tanimoto {
             e.printStackTrace();
         }
     }
-    
+
+    @Override
+    public void run() {
+        int contArroba=0;
+        //String cadena = "Cccc@@";
+        String cadenaCompara = "Ccc@@Ff";
+        
+        //ComparaThread ct=new ComparaThread();
+        
+              
+        char [] arregloCaracteresCompara = new char[cadenaCompara.length()];
+        arregloCaracteresCompara = toCharArray(cadenaCompara);
+        
+        char [][] matrizCaracteres = new char [2][cadenaCompara.length()];
+        
+        
+        //1. leer cadena/archivo segun corresponda
+        String cadena = "Cccc@@";
+        //2. convertir en arreglo caracteres
+        char [] arregloCaracteres = new char[cadena.length()];
+        arregloCaracteres = toCharArray(cadena);
+        //3. contar '@'
+        contArroba = contarArroba(arregloCaracteres);
+        //4. filtrar '@'
+        //se elimina '@' si lo hubiere
+        char [] arregloCaracteresSimplif = new char[cadena.length()];
+        arregloCaracteresSimplif=filtrar(arregloCaracteres);
+        //5. se compara cadena con cadenaCompara
+        //se obtiene una matriz con los caracteres y sus repeticiones
+        matrizCaracteres = matrizCaracteres(arregloCaracteresSimplif, arregloCaracteresCompara);
+        //ct.matrizCaracteres(arregloCaracteresSimplif, arregloCaracteresCompara);
+        imprimirMatriz(matrizCaracteres,arregloCaracteresSimplif.length);
+        
+    }    
     
 }

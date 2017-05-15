@@ -1,0 +1,220 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+
+/**
+ *
+ * @author Aspire
+ */
+public class Tanimoto {
+    
+    public String a;// = "Cccc@@";
+    public String b;// = "CccC@@";
+    
+    public Tanimoto(String str){
+        this.a = str;
+    }
+    
+    public static char [] toCharArray(String str){
+        char [] a;
+        a = str.toCharArray();
+        return a;
+    }
+    
+    public static char [] filtrar(char [] arreglo){
+        
+        for(int i=0; i<arreglo.length;i++){
+            if(arreglo[i] == '@'){
+                arreglo[i]=' ';
+            }
+        }
+        return arreglo;
+    }
+    
+    public static int contarArroba(char [] arreglo){
+        int cont=0;
+        for(int i=0; i<arreglo.length;i++){
+            if(arreglo[i] == '@'){
+                cont = 1;
+            }
+        }
+        return cont;
+    }
+    
+    
+    public static char [][] matrizCaracteres(char [] arreglo1, char [] arreglo2){
+        int cont=0;
+        char [][] matriz = new char[2][arreglo1.length];
+        
+        for(int i=0; i<arreglo1.length;i++){
+            for(int j=0; j<arreglo2.length;j++){
+                if(arreglo1[i]==arreglo2[j]){
+                    cont += 1;
+                    matriz[0][i]=arreglo1[i];
+                    matriz[1][i]=Character.forDigit(cont, 10);
+                }
+            }
+            cont = 0;
+        }
+        
+        return matriz;
+    }
+    
+    public static void imprimirMatriz(char[][] matriz, int n){
+        
+        for(int i=0;i<2;i++){
+            for(int j=0;j<n;j++){
+                System.out.print(matriz[i][j] + "  ");
+            }
+            System.out.println();
+        }
+    }
+    
+    public static char [][] numeroElementos(char[][] matriz){
+        
+        char [][] matrizElementos = new char[2][matriz[0].length];
+        //int cont=0;
+        
+        for(int i=0;i<matriz[0].length-1;i++){
+            for(int j=1;j<matriz[0].length;j++){
+                matrizElementos[0][i]=matriz[0][i];
+                matrizElementos[1][i]=matriz[1][i];
+                
+                if(matriz[0][i]==matriz[0][j]){
+                    matrizElementos[0][j]=' ';
+                    matrizElementos[1][j]='0';
+                }
+            }
+        }
+        
+//        for(int i=0; i<matriz[0].length;i++){
+//            arregloElementos[i+cont] = matriz[0][i]; 
+//            cont+=1;
+//            arregloElementos[i+cont] = matriz[1][i];
+//        }
+        return matrizElementos;
+    }
+    
+    public static int elementos(char [][] matriz){
+        int total=1;
+        
+        for(int i=0; i<matriz[1].length;i++){
+            total += Character.getNumericValue(matriz[1][i]);
+        }
+        
+        return total;
+    }
+    
+    public static void imprimirArreglo(char [] arreglo){
+        for(int i=0; i<arreglo.length;i++)
+            System.out.print("\n" + arreglo[i] + " ");
+    }
+    
+    public static void main(String [] args) throws IOException{
+        
+        int contArroba=0;
+        //String cadena = "Cccc@@";
+        String cadenaCompara = "CcccAA@@Ff//";
+        //String cadenaCompara = "[O-]C(=O)C1=CC(=O)[C@](O1)(C)c1ccccc1";
+        
+        char [] arregloCaracteresCompara = new char[cadenaCompara.length()];
+        arregloCaracteresCompara = toCharArray(cadenaCompara);
+        
+        char [][] matrizCaracteres = new char [2][cadenaCompara.length()];
+        
+        
+        //1. leer cadena/archivo segun corresponda
+        String cadena = "Cccc@@AA//";
+        //String cadena = "[O-]C(=O)C1=CC(=O)[C@](O1)(C)c1ccccc1";
+        //2. convertir en arreglo caracteres
+        char [] arregloCaracteres = new char[cadena.length()];
+        arregloCaracteres = toCharArray(cadena);
+        //3. contar '@'
+        contArroba = contarArroba(arregloCaracteres);
+        //4. filtrar '@'
+        //se elimina '@' si lo hubiere
+        char [] arregloCaracteresSimplif = new char[cadena.length()];
+        arregloCaracteresSimplif=filtrar(arregloCaracteres);
+        //5. se compara cadena con cadenaCompara
+        //se obtiene una matriz con los caracteres y sus repeticiones
+        matrizCaracteres = matrizCaracteres(arregloCaracteresSimplif, arregloCaracteresCompara);
+        
+        imprimirMatriz(matrizCaracteres,arregloCaracteresSimplif.length);
+        
+        char[][] matrizTemp = new char[2][matrizCaracteres[0].length];
+        
+        matrizTemp = numeroElementos(matrizCaracteres);
+        
+        imprimirMatriz(matrizTemp, matrizTemp[0].length);
+        
+        int elementos;
+        elementos = elementos(matrizTemp);
+        
+        System.out.println("El compuesto tiene: " + elementos + " elementos.");
+        
+        
+        //System.out.println(Arrays.toString(numeroElementos(matrizCaracteres)));
+        
+        //imprimirArreglo(numeroElementos(matrizCaracteres));
+        
+        //System.out.println("El tamanio de la matriz es: " + matrizCaracteres[0].length);
+        escribirArchivo();
+        
+        
+        
+//        
+//        System.out.println(arregloCaracteresSimplif);
+//        System.out.println(arregloCaracteresCompara);
+//        System.out.println(arregloCaracteresSimplif.length);
+        //System.out.println(arregloCaracteresSimplif);
+        
+      //  leerArchivo();
+    }
+    
+    public static void leerArchivo() throws FileNotFoundException, IOException{
+        try {
+            String linea = null;
+        
+            File file = new File("./files/entrada.txt");
+            FileReader fileReader = new FileReader(file);
+            BufferedReader buffer = new BufferedReader(fileReader);
+
+            while ((linea=buffer.readLine())!=null) {
+                
+                System.out.println(linea);
+                
+            }
+            buffer.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void escribirArchivo()throws FileNotFoundException, IOException{
+        //String linea = null;
+        
+        try {
+            File file = new File("./files/salida.txt");
+            FileWriter fileWriter = new FileWriter(file);
+            BufferedWriter buffer = new BufferedWriter(fileWriter);
+
+            buffer.write("este es un mensaje de prueba!");
+            buffer.newLine();
+            buffer.write("este es un mensaje (2) de prueba!");
+            
+            buffer.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    
+}

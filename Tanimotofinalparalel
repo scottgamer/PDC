@@ -1,0 +1,306 @@
+import com.sun.tracing.dtrace.ArgsAttributes;
+ import java.io.BufferedReader;
+ import java.io.BufferedWriter;
+ import java.io.File;
+ import java.io.FileInputStream;
+ import java.io.FileNotFoundException;
+ import java.io.FileReader;
+ import java.io.FileWriter;
+ import java.io.IOException;
+ import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+ 
+ /**
+  *
+  * @author Richard
+  */
+ public class Tanimoto implements Runnable{
+     
+ //    public String a;// = "Cccc@@";
+ //    public String b;// = "CccC@@";
+ //    
+ //    public Tanimoto(String str){
+ //        this.a = str;
+ //    }
+     
+     public Tanimoto(){
+         
+     
+     }
+     
+     
+     public static char [] toCharArray(String str){
+         char [] a;
+         a = str.toCharArray();
+         return a;
+     }
+     
+     public static char [] filtrar(char [] arreglo){
+         
+         for(int i=0; i<arreglo.length;i++
+                 ){
+             if(arreglo[i] == '@'){
+                 arreglo[i]=' ';
+             }
+         }
+         return arreglo;
+     }
+     
+     public static int contarArroba(char [] arreglo){
+         int cont=0;
+         for(int i=0; i<arreglo.length;i++){
+             if(arreglo[i] == '@'){
+                 cont = 1;
+             }
+         }
+         return cont;
+     }
+     
+     public static char [][] matrizCaracteres(char [] arreglo1, char [] arreglo2){
+         int cont=0;
+         char [][] matriz = new char[2][arreglo1.length];
+         
+         for(int i=0; i<arreglo1.length;i++){
+             for(int j=0; j<arreglo2.length;j++){
+                 if(arreglo1[i]==arreglo2[j]){
+                     cont = 1;
+                     matriz[0][i]=arreglo1[i];
+                     matriz[1][i]=Character.forDigit(cont, 10);
+                 }
+                 if(arreglo1[i]==' '){
+                     matriz[0][i]=arreglo1[i];
+                     matriz[1][i]= '0';
+                 }
+             }
+             cont = 0;
+         }
+         return matriz;
+     }
+     
+     public static void imprimirMatriz(char[][] matriz, int n){
+         
+         for(int i=0;i<2;i++){
+             for(int j=0;j<n;j++){
+                 System.out.print(matriz[i][j] + "  ");
+             }
+             System.out.println();
+         }
+     }
+     
+     public static char [][] numeroElementos(char[][] matriz){
+         
+         char [][] matrizElementos = new char[2][matriz[0].length];
+         //int cont=0;
+         
+         for(int i=0;i<matriz[0].length-1;i++){
+             for(int j=1;j<matriz[0].length;j++){
+                 matrizElementos[0][i]=matriz[0][i];
+                 matrizElementos[1][i]=matriz[1][i];
+                 
+                 if(matriz[0][i]==matriz[0][j]){
+                     matrizElementos[0][j]=' ';
+                     matrizElementos[1][j]='0';
+                 }
+             }
+         }
+         return matrizElementos;
+     }
+     
+     public static int elementos(char [][] matriz){
+         int total=0;
+         
+         for(int i=0; i<matriz[1].length;i++){
+             total = Character.getNumericValue(matriz[1][i]);
+         }
+         
+         return total;
+     }
+     
+     public static float indiceTanimoto(float Na, float Nb, float Nc){
+         float indice;
+         indice = Nc/(Na+Nb-Nc);
+         
+         return indice;
+     }
+     
+     public static float analiza(String cadenaA, String cadenaB){
+         //1. leer cadena/archivo segun corresponda
+         String patron = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-*/\\()=";
+         
+         //2. convertir en arreglo caracteres
+         char [] arregloCaracteresA = new char[cadenaA.length()];
+         arregloCaracteresA = toCharArray(cadenaA);
+         
+         char [] arregloCaracteresB = new char[cadenaB.length()];
+         arregloCaracteresB = toCharArray(cadenaB);
+         //para comparar con:
+         char [] arregloCaracteresPatron = new char[patron.length()];
+         arregloCaracteresPatron = toCharArray(patron);
+         
+         //3. contar '@'
+         int contArrobaA=0;
+         int contArrobaB=0;
+         
+         contArrobaA = contarArroba(arregloCaracteresA);
+         contArrobaB = contarArroba(arregloCaracteresB);
+         
+         //4. filtrar '@'
+         //se elimina '@' si lo hubiere
+         char [] arregloCaracteresSimplifA = new char[cadenaA.length()];
+         arregloCaracteresSimplifA=filtrar(arregloCaracteresA);
+         
+         char [] arregloCaracteresSimplifB = new char[cadenaB.length()];
+         arregloCaracteresSimplifB=filtrar(arregloCaracteresB);
+         
+         //5. se comparan cadenaA, cadenaB con patron
+         //se obtiene una matriz con los caracteres y sus repeticiones
+         char [][] matrizCaracteresA = new char [2][patron.length()];
+         //matrizCaracteresA = matrizCaracteres(arregloCaracteresSimplifA,arregloCaracteresSimplifB);// arregloCaracteresPatron);
+         matrizCaracteresA = matrizCaracteres(arregloCaracteresSimplifA,arregloCaracteresA);// arregloCaracteresPatron);
+         
+         char [][] matrizCaracteresB = new char [2][patron.length()];
+         //matrizCaracteresB = matrizCaracteres(arregloCaracteresSimplifB, arregloCaracteresPatron);
+         matrizCaracteresB = matrizCaracteres(arregloCaracteresSimplifB,arregloCaracteresA);// arregloCaracteresPatron);
+        
+         /********/
+         //se comparan cadenaA con cadenaB 
+         //se obtiene una matriz con los caracteres y sus repeticiones
+         char [][] matrizCaracteresC = new char [2][patron.length()];
+         matrizCaracteresC = matrizCaracteres(arregloCaracteresSimplifA, arregloCaracteresSimplifB);
+         
+         //6. se obtiene una matriz con los elementos totales 
+         char[][] matrizA = new char[2][matrizCaracteresA[0].length];
+         matrizA = numeroElementos(matrizCaracteresA);
+         
+         char[][] matrizB = new char[2][matrizCaracteresB[0].length];
+         matrizB = numeroElementos(matrizCaracteresB);
+         
+         char[][] matrizC = new char[2][matrizCaracteresC[0].length];
+         matrizC = numeroElementos(matrizCaracteresC);
+         
+         //6.1. elementos de lo compuestos A y B
+         int elementosA;
+         int elementosB;
+         int elementosC;
+         
+         elementosA = elementos(matrizA);
+         elementosB = elementos(matrizB);
+         elementosC = elementos(matrizC);
+         
+         float indice = 0;
+         indice = indiceTanimoto((elementosA + contArrobaA), (elementosB + contArrobaB), elementosC);
+         
+         return indice;
+     }
+     
+     public static void escribirArchivo(String str1, String str2,float indice)
+             throws FileNotFoundException, IOException{
+         //String linea = null;
+         String linea;
+         
+         try {
+             File file = new File("./files/salida.txt");
+             FileWriter fileWriter = new FileWriter(file,true);
+             BufferedWriter buffer = new BufferedWriter(fileWriter);
+             
+            // buffer.write("Compuesto1           Compuesto2            IndiceSimilitud");
+             //buffer.newLine();
+             buffer.append(str1 + "   " + str2 + "    "+ indice);
+             buffer.newLine();
+ 
+             buffer.close();
+         }
+         catch (IOException e) {
+             e.printStackTrace();
+         }
+     }
+     
+     public static String [] leerArchivo() throws FileNotFoundException, IOException{
+         float indice;
+         String [] arreglo = new String[979];
+         String linea1 = null;
+         int i=0;  
+         
+         
+         try {
+             File file = new File("./files/entrada.txt");
+             FileReader fileReader = new FileReader(file);
+             BufferedReader buffer = new BufferedReader(fileReader);
+ 
+             while ((linea1=buffer.readLine())!=null) {
+                 //aqui todo el código para comparar y obtener el índice
+                 arreglo[i]=linea1;
+                 i++;    
+             }
+             //System.out.println(Arrays.toString(arreglo)  "\n");
+             buffer.close();
+         }
+         catch (IOException e) {
+             e.printStackTrace();
+         }
+         return arreglo;
+     }
+     
+     
+     public static void main(String [] args) throws IOException{
+         
+         Tanimoto tan=new Tanimoto();
+         
+         long startTime = System.nanoTime();
+         Runnable proceso1=new Tanimoto();
+//         Runnable proceso2=new Tanimoto();
+
+         new Thread(proceso1).start();
+//         new Thread(proceso2).start();
+
+
+
+         
+         
+         long endTime = System.nanoTime();
+         System.out.println("Duración: " + (endTime-startTime)/1e6 + " ms");
+     }
+
+
+    @Override
+    public void run() {
+        
+        float indice=0;
+         String [] arreglo = null;
+         try {
+             arreglo = new String[leerArchivo().length];
+         } catch (IOException ex) {
+             Logger.getLogger(Tanimoto.class.getName()).log(Level.SEVERE, null, ex);
+         }
+         try {
+             arreglo=leerArchivo();
+         } catch (IOException ex) {
+             Logger.getLogger(Tanimoto.class.getName()).log(Level.SEVERE, null, ex);
+         }
+         System.out.println(Arrays.toString(arreglo));
+         
+         try {
+             for(int i=0; i<leerArchivo().length-1; i++){
+                 for(int j=1; j<leerArchivo().length; j++){
+                     if(arreglo[i]==null||arreglo[j]==null){
+                         indice=-1;
+                         System.out.println(indice);
+                         escribirArchivo(arreglo[i],arreglo[j],indice);
+                     }else if(arreglo[i]==arreglo[j]){
+                         indice=1;
+                         System.out.println(indice);
+                         escribirArchivo(arreglo[i],arreglo[j],indice);
+                     }else{
+                         indice = analiza(arreglo[i], arreglo[j]);
+                         System.out.println(indice);
+                         escribirArchivo(arreglo[i],arreglo[j],indice);
+                     }
+                 }
+             }
+         } catch (IOException ex) {
+             Logger.getLogger(Tanimoto.class.getName()).log(Level.SEVERE, null, ex);
+         }
+        
+         }
+ }

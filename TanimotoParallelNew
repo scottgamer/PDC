@@ -217,12 +217,12 @@ public class Tanimoto implements Runnable{
     
     public static String [] leerArchivo() throws FileNotFoundException, IOException{
         float indice;
-        String [] arreglo = new String[12422];
+        String [] arreglo = new String[12];
         String linea1 = null;
         int i=0;        
         
         try {
-            File file = new File("./files/entradaFinal.txt");
+            File file = new File("./files/entrada.txt");
             FileReader fileReader = new FileReader(file);
             BufferedReader buffer = new BufferedReader(fileReader);
 
@@ -240,7 +240,6 @@ public class Tanimoto implements Runnable{
         return arreglo;
     }
     
-    @Override
     public void run(){
         
         try{
@@ -278,13 +277,91 @@ public class Tanimoto implements Runnable{
         
         long startTime = System.nanoTime();
         
-        Runnable proceso1=new Tanimoto();
+//        Runnable proceso1=new Tanimoto();
+//        Runnable proceso2=new Tanimoto();
+//        
+//        new Thread(proceso1).start();
+//        new Thread(proceso2).start();
+//        
+        Thread t1 = new Thread(new Runnable(){
+            public void run(){
+                try{
+                    float indice=0;
+                    int n=leerArchivo().length;
+                    String [] arreglo = new String[n];
+                    arreglo=leerArchivo();
+                    
+                    for(int i=0; i<(n/2)-1;i++){
+                        System.out.println("Soy arreglo 1 compuesto: " + i + " " + arreglo[i]);
+                    }
+                    
+                    for(int i=0; i<(n/2)-1; i++){
+                        for(int j=1; j<n/2; j++){
+                            if(arreglo[i]==null||arreglo[j]==null){
+                                indice=-1;
+                                escribirArchivo(arreglo[i],arreglo[j],indice);
+                            }else if(arreglo[i]==arreglo[j]){
+                                indice=1;
+                                escribirArchivo(arreglo[i],arreglo[j],indice);
+                            }else{
+                                indice=analiza(arreglo[i], arreglo[j]);
+                                escribirArchivo(arreglo[i],arreglo[j],indice);
+                            }
+                        }
+                    }
+                    
+                    System.out.println(Arrays.toString(arreglo));
+                    System.out.println("El tamanio del arreglo 1 es: " + arreglo.length/2);
+                }
+                    catch (IOException ex) {
+                    Logger.getLogger(Tanimoto.class.getName()).log(Level.SEVERE, null, ex);
+
+                }
+            }
+        });
         
-        new Thread(proceso1).start();
+        Thread t2 = new Thread(new Runnable(){
+            public void run(){
+                try{
+                    float indice=0;
+                    int n=leerArchivo().length;
+                    String [] arreglo = new String[n];
+                    arreglo=leerArchivo();
+                    
+                    for(int i=n/2; i<n;i++){
+                        System.out.println("Soy arreglo 2 compuesto: " + i + " " + arreglo[i]);
+                    }
+                    
+                    for(int i=(n/2)+1; i<n-1; i++){
+                        for(int j=(n/2)+2; j<n; j++){
+                            if(arreglo[i]==null||arreglo[j]==null){
+                                indice=-1;
+                                escribirArchivo(arreglo[i],arreglo[j],indice);
+                            }else if(arreglo[i]==arreglo[j]){
+                                indice=1;
+                                escribirArchivo(arreglo[i],arreglo[j],indice);
+                            }else{
+                                indice=analiza(arreglo[i], arreglo[j]);
+                                escribirArchivo(arreglo[i],arreglo[j],indice);
+                            }
+                        }
+                    }
+                    
+                    //System.out.println(Arrays.toString(arreglo));
+                    System.out.println("El tamanio del arreglo 2 es: " + arreglo.length/2);
+                }
+                catch (IOException ex) {
+                    Logger.getLogger(Tanimoto.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+        
+        t1.start();
+        t2.start();
         
         long endTime = System.nanoTime();
         
-        System.out.println("El tiempo total es: " + (endTime-startTime));
+        System.out.println("El tiempo total es: " + (endTime-startTime)/1000 + " segundos");
         
     }
 
